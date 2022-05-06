@@ -3,7 +3,7 @@ suppressPackageStartupMessages(lapply(c("data.table", "jsonlite","rstudioapi"), 
 ##setwd(dirname(getActiveDocumentContext()$path))
 ##setwd("..")
 
-#load in fts - check with Dan if this is correct?
+##load in fts
 years <- 2016:2021
 fts_curated <- list()
 for (i in 1:length(years)){
@@ -17,7 +17,7 @@ fts <- rbindlist(fts_curated)
 fts <- fts[as.charachter(year) >= 2016]
 
 
-## Add in keep function to have only required columns?
+## Maybe add in keep function to have only required columns
 
 
 ##Keywords from Nik's keyword list, can we tweak so acroynms only picked up if standalone?
@@ -35,9 +35,9 @@ cash.keywords <- c(
   "argent",
   "monetaires",
   "bons",
-  "espèces",
+  "espÃ¨ces",
   "monnaie",
-  "monétaires",
+  "monÃ©taires",
   "tokens",
   "coupons",
   "ctp",
@@ -54,7 +54,7 @@ cash.keywords <- c(
 )
 
 
-## added in relevant clusters from cluster mapping - check what to do when listed in mapping with "/"
+##Relevant clusters from cluster mapping
 cash_clusters <- c(
   "Cash",
   "Multi-purpose Cash",
@@ -63,35 +63,30 @@ cash_clusters <- c(
   "Multipurpose Cash Assistance COVID-19",
   "Multi-Purpose Cash Assistance COVID-19",
   "Multi-purpose Cash COVID-19",
-  ##"Multipurpose cash/ IDPs/ multisector"
-  ##"Multi-sector Cash/Social Protection COVID-19",
+  "Multipurpose cash",
   "Protection: Multi-Purpose Cash Assistance",
- ## "Food Security / Cash Transfer COVID-19"
-  
+  "Cash Transfer COVID-19"
   
   )
 
 fts$relevance <- "None"
 
 
-##
-# Define relevance based on sector and/or method
+
+## Define relevance based on sector and/or method
 fts[method == "Cash transfer programming (CTP)", relevance := "Total"]
 fts[destinationObjects_Cluster.name %in% cash_clusters, relevance := "Total"]
 
 
-#TODO select partial sectors
+#TODO select partial sectors with cash cluster and
 fts[multisector == T &, relevance := "Partial"]
 ## was by use of grepl | and if cash_clusters == T??
 
 
-##
+
 #Count number of keywords appearing in description
 fts[, keywordcount := unlist(lapply(tolower(paste0(description)), function(x) sum(gregexpr(tolower(paste0(major.keywords, collapse = "|")), x)[[1]] > 0, na.rm = T)))]
-##
 
-
-##would we want keyword search on any other fields?
 
 ##below checks where relevance is none and there are or are not keywords
 ##second line below useful for identifying new keywords maybe missing
