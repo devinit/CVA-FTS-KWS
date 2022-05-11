@@ -90,5 +90,7 @@ fts[, keywordcount := unlist(lapply(paste0(description), function(x) sum(gregexp
 fts[relevance == "None" & keywordcount > 0]
 fts[relevance != "None" & keywordcount == 0]
 
-write.csv(fts, "fts_output_CVA.csv", fileEncoding = "UTF-8", row.names = F)
+fts_flagged <- fts[keywordcount > 0 | relevance != "None"]
+
+write.csv(fts_flagged, "fts_output_CVA.csv", fileEncoding = "UTF-8", row.names = F)
 #
