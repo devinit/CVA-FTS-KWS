@@ -3,7 +3,7 @@ suppressPackageStartupMessages(lapply(c("data.table", "jsonlite","rstudioapi", "
 setwd(dirname(getActiveDocumentContext()$path))
 
 base_path <- "C:/Users/mike.pearson/Development Initiatives Poverty Research Limited/Humanitarian Team - Documents/GHA Programme/OA1 - Crisis trends, needs, resource flows/GHA Report 2024/Datasets/FTS - Full Dataset/Datasets/"
-year <- 2019
+year <- 2023
 filename = paste0(base_path, "fts_curated_", year, ".csv")
 fts <- fread(filename)
 
@@ -83,4 +83,5 @@ for (i in 1: length(unique_project_ids)) {
 
 close(pb)
 all_projects <- rbindlist(project_list)
+write.csv(all_projects, "all_projects_2023.csv", fileEncoding = "UTF-8", row.names = FALSE, quote = TRUE)
 
