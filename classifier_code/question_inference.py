@@ -17,7 +17,7 @@ def inference(example):
     predicted_class_id = logits.argmax().item()
     class_name = model.config.id2label[predicted_class_id]
     predicted_confidences = softmax(logits[0], axis=0)
-    class_confidence = predicted_confidences[predicted_class_id]
+    class_confidence = predicted_confidences[1]
     example['predicted_class'] = class_name
     example['predicted_confidence'] = class_confidence
     return example

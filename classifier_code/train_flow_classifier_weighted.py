@@ -5,7 +5,7 @@
 # login()
 
 import types
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
@@ -18,6 +18,7 @@ from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers.modeling_outputs import SequenceClassifierOutput
 import evaluate
 import numpy as np
+import pandas as pd
 from collections import Counter
 
 from typing import Optional, Tuple, Union
@@ -99,7 +100,14 @@ def weighted_forward_bert(
         attentions=outputs.attentions,
     )
 
-dataset = load_dataset("csv", data_files="CVA_project_questions.csv", split="train")
+dataset = load_dataset("csv", data_files="CVA_flow_descriptions.csv", split="train")
+
+# De-duplicate
+df = pd.DataFrame(dataset)
+print(df.shape)
+df = df.drop_duplicates(subset=['text'])
+print(df.shape)
+dataset = Dataset.from_pandas(df, preserve_index=False)
 
 # Add removable column to stratify
 count = Counter()
@@ -117,8 +125,8 @@ dataset = dataset.class_encode_column('class_label').train_test_split(
 dataset.remove_columns("class_label")
 
 unique_labels = [
-    "Non-quantitative",
-    "Quantitative"
+    "Partial",
+    "Full"
 ]
 id2label = {i: label for i, label in enumerate(unique_labels)}
 label2id = {id2label[i]: i for i in id2label.keys()}
@@ -126,7 +134,7 @@ label2id = {id2label[i]: i for i in id2label.keys()}
 def preprocess_function(examples):
     return tokenizer(examples['text'], truncation=True)
 
-dataset = dataset.map(preprocess_function, remove_columns=['type'])
+dataset = dataset.map(preprocess_function, remove_columns=['id'])
 
 weight_list = list()
 total_rows = dataset['train'].num_rows + dataset['test'].num_rows
@@ -161,17 +169,17 @@ model.forward = types.MethodType(weighted_forward_bert, model)
 model.class_weights = weights
 
 training_args = TrainingArguments(
-    'cva-quant-weighted-classifier',
-    learning_rate=6e-6, # This can be tweaked depending on how loss progresses
-    per_device_train_batch_size=32, # These should be tweaked to match GPU VRAM
-    per_device_eval_batch_size=32,
+    'cva-flow-weighted-classifier',
+    learning_rate=5e-6, # This can be tweaked depending on how loss progresses
+    per_device_train_batch_size=64, # These should be tweaked to match GPU VRAM
+    per_device_eval_batch_size=64,
     num_train_epochs=20,
     weight_decay=0.01,
     evaluation_strategy='epoch',
     save_strategy='epoch',
     logging_strategy='epoch',
     load_best_model_at_end=True,
-    push_to_hub=True,
+    push_to_hub=False,
     save_total_limit=5,
 )
 
