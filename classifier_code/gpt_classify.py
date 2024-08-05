@@ -44,7 +44,7 @@ if __name__ == '__main__':
     system_prompt = """
     You are tasked with classifying user text as either 'Full' or 'Partial' cash/voucher humanitarian assistance. 
     'Full' means that the text only describes cash/voucher assistance or activities funded purely by cash/voucher assistance. 
-    'Partial' means that the text describes both cash/coucher assistance and other unrelated activities. 
+    'Partial' means that the text describes both cash/voucher assistance and other unrelated activities. 
     Only reply 'Full' or 'Partial' in response to the user text.
     """
 
