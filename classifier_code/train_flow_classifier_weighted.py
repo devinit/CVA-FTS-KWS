@@ -170,10 +170,10 @@ model.class_weights = weights
 
 training_args = TrainingArguments(
     'cva-flow-weighted-classifier',
-    learning_rate=5e-6, # This can be tweaked depending on how loss progresses
+    learning_rate=1e-4, # This can be tweaked depending on how loss progresses
     per_device_train_batch_size=64, # These should be tweaked to match GPU VRAM
     per_device_eval_batch_size=64,
-    num_train_epochs=20,
+    num_train_epochs=10,
     weight_decay=0.01,
     evaluation_strategy='epoch',
     save_strategy='epoch',
