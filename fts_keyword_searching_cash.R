@@ -52,7 +52,10 @@ cash.acronyms <- c(
   "CFW",
   "CFA",
   "SSN",
-  "ESSN"
+  "ESSN",
+  "MPC",
+  "MPCT",
+  "CVA"
 )
 
 #creates list of all keywords with case sensitive modifiers where appropriate
@@ -60,10 +63,19 @@ cash.keywords <- paste0("(?i)", paste0(cash.noncase.keywords, collapse = "|"), "
 
 ##Relevant clusters from cluster mapping
 cash_clusters <- c(
+  "Basic Needs / Multi-Purpose Cash",
+  "Cash à usage multiple",
+  "Multi Purpose Cash",
+  "Multi-cluster/Multi-Purpose Cash",
+  "Multi-Purpose Cash & Social Protection",
+  "Multipurpose Cash Assistance (MPC)",
+  "Multi-Purpose Cash Assistance (MPCA)",
+  "Multipurpose cash/ IDPs/ multisector",
+  "Multi-sector Cash/Social Protection COVID-19",
   "Cash",
   "Multi-purpose Cash",
   "Multipurpose cash assistance",
-  "Multi-purpose Cash Assistance",
+  "Multi-Purpose Cash Assistance",
   "Multipurpose Cash Assistance COVID-19",
   "Multi-Purpose Cash Assistance COVID-19",
   "Multi-purpose Cash COVID-19",
