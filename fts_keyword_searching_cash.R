@@ -118,7 +118,13 @@ mean(fts$keyword_match > 0)
 View(fts[relevance == "None" & keyword_match][,"all_text"])
 View(fts[relevance != "None" & !keyword_match][,"all_text"])
 
-fts_flagged <- fts[keyword_match | relevance != "None"]
+fts_flagged <- fts[
+  which(
+    fts$keyword_match |
+      fts$relevance != "None" | 
+      fts$project_cva_percentage > 0 |
+      fts$project_cva)
+]
 
 fwrite(fts_flagged, "fts_output_CVA.csv")
 #
