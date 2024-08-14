@@ -136,3 +136,7 @@ cash_bool_and_percentage$cva[which(cash_bool_and_percentage$cva_percentage==0)] 
 
 fwrite(cash_bool_and_percentage, "projects/cash_projects.csv")
 
+# cash_name_projects <- all_projects[grepl(cash.noncase.keywords, project_name, ignore.case=T)]
+
+project_text = unique(all_projects[,c("project_id", "project_name", "project_objective")])
+fwrite(project_text, "projects/project_text.csv")
