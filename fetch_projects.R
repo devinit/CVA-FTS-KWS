@@ -53,7 +53,9 @@ for(year in c(2017:2024)){
       }
       
       field_values = project$projectVersionPlans[[1]]$projectVersionFields
-      if(length(field_values) == 0){
+      field_value_length = length(field_values)
+      field_value_errors = 0
+      if(field_value_length == 0){
         project_df = data.frame(
           "project_id" = project_id,
           "project_name" = project$name,
@@ -70,7 +72,7 @@ for(year in c(2017:2024)){
         )
         project_list[[project_index]] = project_df
         project_index = project_index + 1
-    }else{
+    } else {
         for(field in field_values){
           def = field_definitions[[as.character(field$conditionFieldId)]]
           if(!is.null(def) & !is.null(field$value)){
@@ -90,8 +92,29 @@ for(year in c(2017:2024)){
             )
             project_list[[project_index]] = project_df
             project_index = project_index + 1
+          } else {
+            field_value_errors = field_value_errors + 1
           }
         }
+    }
+      # Non-zero length, but all of the fields are incorrectly referenced
+      if(field_value_errors == field_value_length){
+        project_df = data.frame(
+          "project_id" = project_id,
+          "project_name" = project$name,
+          "project_objective" = project_objective,
+          "project_year" = year,
+          "currently_requested_funds" = project$currentRequestedFunds,
+          "plan_id" = project$plans[[1]]$planVersion$id,
+          "plan_name" = project$plans[[1]]$planVersion$name,
+          "global_clusters" = global_clusters_string,
+          "organisation_ids" = organisation_ids_string,
+          "organisation_names" = organisation_names_string,
+          "question" = "No field questions",
+          "answer" = "No field answers"
+        )
+        project_list[[project_index]] = project_df
+        project_index = project_index + 1
       }
     }
 

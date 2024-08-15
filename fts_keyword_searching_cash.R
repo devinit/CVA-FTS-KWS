@@ -23,6 +23,8 @@ project_text$text = paste(project_text$project_name, project_text$project_object
 project_text[,c("project_name", "project_objective")] = NULL
 project_data = merge(project_text, project_metadata, all=T)
 names(project_data) = c("sourceObjects_Project.id", "project_text", "project_cva_percentage", "project_cva")
+setdiff(unique(fts$sourceObjects_Project.id), unique(project_data$sourceObjects_Project.id))
+
 ## Maybe add in keep function to have only required columns
 fts$sourceObjects_Project.id = as.character(fts$sourceObjects_Project.id)
 fts = merge(fts, project_data, by="sourceObjects_Project.id", all.x=T)
