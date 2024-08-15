@@ -148,11 +148,13 @@ inference_output$text = NULL
 fts = merge(fts, inference_output, by="id", all.x=T)
 
 # Change Partial relevance by ML
-fts$relevance_method[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Partial")] = "ML"
+fts$relevance_method[which(fts$keyword_match & fts$relevance == "None" & fts$predicted_class=="Partial")] = "Keyword + ML"
+fts$relevance_method[which(fts$project_cva & fts$relevance == "None" & fts$predicted_class=="Partial")] = "Project API + ML"
 fts$relevance[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Partial")] = "Partial"
 
 # Change Full relevance by ML
-fts$relevance_method[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Full")] = "ML"
+fts$relevance_method[which(fts$keyword_match & fts$relevance == "None" & fts$predicted_class=="Full")] = "Keyword + ML"
+fts$relevance_method[which(fts$project_cva & fts$relevance == "None" & fts$predicted_class=="Full")] = "Project API + ML"
 fts$relevance[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Full")] = "Full"
 
 
