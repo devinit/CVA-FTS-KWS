@@ -102,14 +102,14 @@ cash_clusters <- c(
   "Cash Transfer COVID-19"
   )
 
-fts$relevance <- "None"
+fts$sector_method_cluster_relevance <- "None"
 
 ## Define relevance based on sector and/or method
-fts[method == "Cash transfer programming (CTP)", relevance := "Full"]
-fts[destinationObjects_Cluster.name %in% cash_clusters, relevance := "Full"]
+fts[method == "Cash transfer programming (CTP)", sector_method_cluster_relevance := "Full"]
+fts[destinationObjects_Cluster.name %in% cash_clusters, sector_method_cluster_relevance := "Full"]
 
 #TODO select partial sectors with cash cluster and
-fts[grepl(";", destinationObjects_Cluster.name) == T & grepl(paste0(cash_clusters, collapse = "|"), destinationObjects_Cluster.name), relevance := "Partial"]
+fts[grepl(";", destinationObjects_Cluster.name) == T & grepl(paste0(cash_clusters, collapse = "|"), destinationObjects_Cluster.name), sector_method_cluster_relevance := "Partial"]
 ## was by use of grepl | and if cash_clusters == T??
 
 #Count number of keywords appearing in description
@@ -117,16 +117,53 @@ fts$keyword_match = grepl(cash_regex, fts$all_text, ignore.case=T)
 mean(fts$keyword_match > 0)
 ##below checks where relevance is none and there are or are not keywords
 ##second line below useful for identifying new keywords maybe missing
-View(fts[relevance == "None" & keyword_match][,"all_text"])
-View(fts[relevance != "None" & !keyword_match][,"all_text"])
+View(fts[sector_method_cluster_relevance == "None" & keyword_match][,"all_text"])
+View(fts[sector_method_cluster_relevance != "None" & !keyword_match][,"all_text"])
+
+# Start with sector/method/cluster relevance
+fts$relevance = fts$sector_method_cluster_relevance
+fts$relevance_method = "Sector/Method/Cluster"
+
+# If percentage is greater than or equal to 0.75, mark full
+fts$relevance_method[which(fts$project_cva_percentage >= 0.75)] = "Project CVA Percentage"
+fts$relevance[which(fts$project_cva_percentage >= 0.75)] = "Full"
+
+# If percentage is greater than 0 but less than 0.75, mark partial
+fts$relevance_method[which(fts$project_cva_percentage > 0 & fts$project_cva_percentage < 0.75)] = "Project CVA Percentage"
+fts$relevance[which(fts$project_cva_percentage > 0 & fts$project_cva_percentage < 0.75)] = "Partial"
+
+# Save those that are either keyword match or marked at project level as CVA, but are None for ML
+# to_inference = subset(fts, (keyword_match | project_cva) & relevance == "None")
+# keep = c("id", "description")
+# to_inference = unique(to_inference[,keep,with=F])
+# setnames(to_inference, "description", "text")
+# fwrite(to_inference, "classifier_code/fts_to_inference.csv")
+
+# Load and join inferenced data
+inference_output = fread("classifier_code/fts_to_inference_output.csv")
+mean(inference_output$predicted_class=="Full")
+hist(inference_output$predicted_confidence)
+inference_output$text = NULL
+
+fts = merge(fts, inference_output, by="id", all.x=T)
+
+# Change Partial relevance by ML
+fts$relevance_method[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Partial")] = "ML"
+fts$relevance[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Partial")] = "Partial"
+
+# Change Full relevance by ML
+fts$relevance_method[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Full")] = "ML"
+fts$relevance[which((fts$keyword_match | fts$project_cva) & fts$relevance == "None" & fts$predicted_class=="Full")] = "Full"
+
 
 fts_flagged <- fts[
   which(
-    fts$keyword_match |
-      fts$relevance != "None" | 
-      fts$project_cva_percentage > 0 |
-      fts$project_cva)
+    fts$relevance != "None"
+  )
 ]
+
+table(fts$relevance)
+table(fts_flagged$relevance_method)
 
 fwrite(fts_flagged, "fts_output_CVA.csv")
 #

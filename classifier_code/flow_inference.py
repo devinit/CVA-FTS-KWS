@@ -23,9 +23,9 @@ def inference(example):
     return example
 
 def main():
-    dataset = load_dataset("csv", data_files="CVA_flow_descriptions.csv", split="train")
+    dataset = load_dataset("csv", data_files="fts_to_inference.csv", split="train")
     dataset = dataset.map(inference)
-    dataset.to_csv('flow_inference_output.csv')
+    dataset.to_csv('fts_to_inference_output.csv')
 
 
 if __name__ == '__main__':
