@@ -22,12 +22,12 @@ project_text = fread("projects/project_text.csv")
 project_text$text = paste(project_text$project_name, project_text$project_objective)
 project_text[,c("project_name", "project_objective")] = NULL
 project_data = merge(project_text, project_metadata, all=T)
-names(project_data) = c("sourceObjects_Project.id", "project_text", "project_cva_percentage", "project_cva")
-setdiff(unique(fts$sourceObjects_Project.id), unique(project_data$sourceObjects_Project.id))
+names(project_data) = c("destinationObjects_Project.id", "project_text", "project_cva_percentage", "project_cva")
+setdiff(unique(fts$destinationObjects_Project.id), unique(project_data$destinationObjects_Project.id))
 
 ## Maybe add in keep function to have only required columns
-fts$sourceObjects_Project.id = as.character(fts$sourceObjects_Project.id)
-fts = merge(fts, project_data, by="sourceObjects_Project.id", all.x=T)
+fts$destinationObjects_Project.id = as.character(fts$destinationObjects_Project.id)
+fts = merge(fts, project_data, by="destinationObjects_Project.id", all.x=T)
 
 fts$all_text = paste(fts$description, fts$project_text)
 
